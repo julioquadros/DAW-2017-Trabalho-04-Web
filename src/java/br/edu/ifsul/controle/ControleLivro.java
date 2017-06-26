@@ -15,85 +15,39 @@ import br.edu.ifsul.modelo.Autor;
 import br.edu.ifsul.util.Util;
 import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 @ManagedBean(name = "controleLivro")
-@SessionScoped
+@ViewScoped
 public class ControleLivro implements Serializable{
+    
         
-    private LivroDAO dao;
+    private LivroDAO<Livro> dao;
     private Livro objeto;
+    private Boolean editando;
+    private AutorDAO<Autor> daoAutor;
     private Autor autor;
     private FormatoDAO daoFormato;
     private IdiomaDAO daoIdioma;
     private CatalogoDAO daoCatalogo;
-    private AutorDAO daoAutor;
+    private Boolean editandoAutor;
+    private Boolean novoAutor;
     
     public ControleLivro(){
-        dao = new LivroDAO();
+        dao = new LivroDAO<>();
+        daoAutor = new AutorDAO<>();
         daoFormato = new FormatoDAO();
         daoIdioma = new IdiomaDAO();
         daoCatalogo = new CatalogoDAO();
-        autor = new Autor();
-        daoAutor = new AutorDAO();
-    }
-    
-    public String listar(){
-        return "/privado/livro/listar?faces-redirect=true";
-    }
-    
-    public String novo(){
-        objeto = new Livro();
-        return "formulario";
-    }
-    
-    public String salvar(){
-        if (dao.salvar(objeto)){
-            Util.mensagemInformacao(dao.getMensagem());
-            return "listar";
-        } else {
-            Util.mensagemErro(dao.getMensagem());
-            return "formulario";
-        }
+        editando = false;
     }
 
-    public String cancelar(){
-        return "listar";
-    }
-    
-    public void remover(String isbn){
-        objeto = dao.localizar(isbn);
-        if (dao.remover(objeto)){
-            Util.mensagemInformacao(dao.getMensagem());
-        }else {
-            Util.mensagemErro(dao.getMensagem());
-        }
-    }
-    
-    public String editar(String isbn){
-        try{
-            objeto = dao.localizar(isbn);
-            return "formulario";
-        }catch (Exception e){
-            Util.mensagemErro("Erro ao recuperar objeto: "+Util.getMensagemErro(e));
-            return "listar";
-        }
-    }
-    
-    public LivroDAO getDao() {
-        return dao;
+    public Autor getAutor() {
+        return autor;
     }
 
-    public void setDao(LivroDAO dao) {
-        this.dao = dao;
-    }
-
-    public Livro getObjeto() {
-        return objeto;
-    }
-
-    public void setObjeto(Livro objeto) {
-        this.objeto = objeto;
+    public void setAutor(Autor autor) {
+        this.autor = autor;
     }
 
     public FormatoDAO getDaoFormato() {
@@ -127,13 +81,98 @@ public class ControleLivro implements Serializable{
     public void setDaoAutor(AutorDAO daoAutor) {
         this.daoAutor = daoAutor;
     }
-
-    public Autor getAutor() {
-        return autor;
+    
+    public String listar(){
+        return "/privado/livro/listar?faces-redirect=true";
+    }
+    
+    public void novo() {
+        objeto = new Livro();
+        editando = true;
+    }
+    
+    public String salvar(){
+        if (getDao().persist(getObjeto())){
+            Util.mensagemInformacao(getDao().getMensagem());
+            return "listar";
+        } else {
+            Util.mensagemErro(getDao().getMensagem());
+            return "formulario";
+        }
     }
 
-    public void setAutor(Autor autor) {
-        this.autor = autor;
+    public String cancelar(){
+        return "listar";
+    }
+    
+    public void excluir(String isbn){
+        objeto = dao.localizarLivro(isbn);
+        if (dao.remover(objeto)){
+            Util.mensagemInformacao(dao.getMensagem());
+        }else {
+            Util.mensagemErro(dao.getMensagem());
+        }
+    }
+    
+    public void novoAutor(){
+        editandoAutor = true;
+    }
+    
+    public void salvarAutor(){
+        if (!objeto.getAutores_do_livro().contains(autor)) {
+            objeto.getAutores_do_livro().add(autor);
+            Util.mensagemInformacao("Autor adicionado com sucesso!");
+        } else {
+            Util.mensagemErro("O Autor já está cadastrado nesse livro!");
+        }
+        editandoAutor = false;
+    }
+    
+    public void removerAutor(Autor obj) {
+        objeto.getAutores_do_livro().remove(obj);
+        Util.mensagemInformacao("Autor removido com sucesso!");
+    }
+    
+    public void adicionarAutor(){
+        if (autor != null){
+            if(!objeto.getAutores_do_livro().contains(autor)){
+                objeto.getAutores_do_livro().add(autor);
+                Util.mensagemInformacao("Autor adicionado com sucesso!");
+            } else {
+                Util.mensagemErro("Autor já existe na lista de autores!");
+            }
+        }
+    }
+    
+    public void removerAutor(int index){
+        objeto.getAutores_do_livro().remove(index);
+        Util.mensagemInformacao("Autor removido com sucesso!");
+    }
+    
+    public String alterar(String isbn){
+        try{
+            objeto = dao.localizarLivro(isbn);
+            return "formulario";
+        }catch (Exception e){
+            Util.mensagemErro("Erro ao recuperar objeto: "+Util.getMensagemErro(e));
+            return "listar";
+        }
+    }
+    
+    public LivroDAO getDao() {
+        return dao;
+    }
+
+    public void setDao(LivroDAO dao) {
+        this.dao = dao;
+    }
+
+    public Livro getObjeto() {
+        return objeto;
+    }
+
+    public void setObjeto(Livro objeto) {
+        this.objeto = objeto;
     }
     
 }

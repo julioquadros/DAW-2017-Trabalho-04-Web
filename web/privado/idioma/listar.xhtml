@@ -14,7 +14,7 @@
                                  action="#{controleIdioma.novo()}"
                                  ajax="false"
                                  icon="ui-icon-plus"/>
-                <p:dataTable value="#{controleIdioma.dao.lista}"
+                <p:dataTable value="#{controleIdioma.dao.listaObjetos}"
                              var="obj">
                     <p:column headerText="ID:">
                         <p:outputLabel value="#{obj.id}"/>

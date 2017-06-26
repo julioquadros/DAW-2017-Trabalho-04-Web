@@ -1,7 +1,9 @@
+
 package br.edu.ifsul.converters;
 
 import br.edu.ifsul.jpa.EntityManagerUtil;
 import br.edu.ifsul.modelo.Catalogo;
+import br.edu.ifsul.modelo.Livraria;
 import java.io.Serializable;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;

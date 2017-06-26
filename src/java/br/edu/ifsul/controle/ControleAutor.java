@@ -14,14 +14,14 @@ import javax.faces.bean.SessionScoped;
 
 @ManagedBean(name = "controleAutor")
 @SessionScoped
-public class ControleAutor implements Serializable {
+public class ControleAutor implements Serializable{
     
-    private AutorDAO dao;
+    private AutorDAO<Autor> dao;
     private Autor objeto;
     
     public ControleAutor(){
         dao = new AutorDAO();
-    }
+    }    
     
     public String listar(){
         return "/privado/autor/listar?faces-redirect=true";
@@ -33,7 +33,7 @@ public class ControleAutor implements Serializable {
     }
     
     public String salvar(){
-        if (dao.salvar(objeto)){
+        if (dao.persist(objeto)){
             Util.mensagemInformacao(dao.getMensagem());
             return "listar";
         } else {
@@ -41,30 +41,30 @@ public class ControleAutor implements Serializable {
             return "formulario";
         }
     }
-    
+
     public String cancelar(){
         return "listar";
-    }
-    
-    public String editar(Integer id){
-        try {
-            objeto = dao.localizar(id);
-            return "formulario";
-        } catch (Exception e){
-            Util.mensagemErro("Erro ao recuperar objeto: "+Util.getMensagemErro(e));
-            return "listar";
-        }
     }
     
     public void remover(Integer id){
         objeto = dao.localizar(id);
         if (dao.remover(objeto)){
             Util.mensagemInformacao(dao.getMensagem());
-        } else {
+        }else {
             Util.mensagemErro(dao.getMensagem());
         }
     }
-
+    
+    public String editar(Integer id){
+        try{
+            objeto = dao.localizar(id);
+            return "formulario";
+        }catch (Exception e){
+            Util.mensagemErro("Erro ao recuperar objeto: "+Util.getMensagemErro(e));
+            return "listar";
+        }
+    }
+    
     public AutorDAO getDao() {
         return dao;
     }
@@ -82,5 +82,5 @@ public class ControleAutor implements Serializable {
     }
     
     
-
+    
 }
